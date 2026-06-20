@@ -163,3 +163,9 @@ curl -fsSL https://raw.githubusercontent.com/tepshq/awake/main/install.sh | bash
 
 - 通常モードに戻し（パスワードを聞かれます）、プラグインと状態ファイル（`~/Library/Application Support/AWAKE`）を削除します。
 - SwiftBar 本体も消す場合: `brew uninstall --cask swiftbar`
+
+---
+
+## ライセンス
+
+[MIT License](LICENSE)。無保証・自己責任でご利用ください。
