@@ -3,7 +3,7 @@
 # AWAKE — 蓋を閉じてもスリープしないモードをメニューバーからトグル
 #
 # <xbar.title>AWAKE</xbar.title>
-# <xbar.version>v1.0.0</xbar.version>
+# <xbar.version>v1.0.1</xbar.version>
 # <xbar.author>TePs</xbar.author>
 # <xbar.desc>蓋を閉じても(外部ディスプレイ無しでも)Macをスリープさせない状態をメニューバーからON/OFF。ON中はメニューバーで赤く点滅して強く警告します。</xbar.desc>
 # <xbar.dependencies>macOS,pmset</xbar.dependencies>
@@ -16,11 +16,14 @@
 #   OFF = /usr/bin/pmset -a disablesleep 0   (root必須)
 #   root取得は osascript の「管理者として実行」ダイアログ(毎回パスワード入力)で行う。
 #   状態読み取りは pmset -g の SleepDisabled を見るだけなのでパスワード不要。
+#
+# アイコン:
+#   👀 = 普通(OFF) / 👁️ = 寝ないモード(ON) / 🚨 = アラート(ON中の点滅相方)
 
 # ===== 設定 =====================================================
 # ON中のメニューバーを点滅させて最大限目立たせる。
-#   1 = 点滅あり(「寝ないモード」⇔「AWAKE」を赤⇔橙で交互) … 付けっぱなし事故を最も防ぎやすい(既定)
-#   0 = 点滅なし(赤いテキストのみ)
+#   1 = 点滅あり(「👁️ 寝ないモード」⇔「🚨 AWAKE」を赤⇔橙で交互) … 付けっぱなし事故を最も防ぎやすい(既定)
+#   0 = 点滅なし(👁️ の赤いテキストのみ)
 BLINK=1
 
 # do shell script はPATHが限定されるため、コマンドは必ず絶対パスで。
@@ -73,27 +76,27 @@ SELF="$0"   # SwiftBar はプラグインを絶対パスで実行する
 STATE="$(get_state)"
 
 if [ "$STATE" = "on" ]; then
-  # === メニューバー: ON中は超目立たせる ===
+  # === メニューバー: ON中は超目立たせる（👁️ ⇔ 🚨 の点滅）===
   # 最初の "---" より前に複数行を出すと SwiftBar がフレームとして交互表示(=点滅)する。
-  echo "🚨 寝ないモード | color=#FF3B30 size=14"
+  echo "👁️ 寝ないモード | color=#FF3B30 size=14"
   if [ "$BLINK" = "1" ]; then
-    echo "☀️ AWAKE | color=#FF9500 size=14"
+    echo "🚨 AWAKE | color=#FF9500 size=14"
   fi
 
   echo "---"
-  echo "⚠️ 蓋を閉じても寝ません (ON) | color=#FF3B30 size=14"
+  echo "👁️ 蓋を閉じても寝ません (ON) | color=#FF3B30 size=14"
   echo "外部ディスプレイ無しでもスリープしません | size=12 color=#FF3B30"
   echo "---"
-  echo "🌙 OFFにする（通常スリープに戻す） | bash=\"$SELF\" param1=off terminal=false refresh=true color=#0A84FF"
+  echo "👀 OFFにする（通常スリープに戻す） | bash=\"$SELF\" param1=off terminal=false refresh=true color=#0A84FF"
 else
-  # === メニューバー: OFFは地味に ===
-  echo "🌙 | color=#8E8E93 size=14"
+  # === メニューバー: OFF(普通)は地味に 👀 ===
+  echo "👀 | color=#8E8E93 size=14"
 
   echo "---"
-  echo "😴 通常スリープ (OFF) | color=#8E8E93 size=14"
+  echo "👀 通常スリープ (OFF) | color=#8E8E93 size=14"
   echo "蓋を閉じると通常どおりスリープします | size=12 color=#8E8E93"
   echo "---"
-  echo "☀️ ONにする（蓋を閉じても寝ない） | bash=\"$SELF\" param1=on terminal=false refresh=true color=#FF9500"
+  echo "👁️ ONにする（蓋を閉じても寝ない） | bash=\"$SELF\" param1=on terminal=false refresh=true color=#FF9500"
 fi
 
 # ---- 共通フッタ ----

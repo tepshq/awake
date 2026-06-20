@@ -112,6 +112,36 @@ chmod +x "<プラグインフォルダ>/awake.30s.sh"
 
 ---
 
+## 更新方法
+
+AWAKE は **2 ステップ**で更新します（GitHub を更新しても、各自の Mac は自動では新しくなりません）。
+
+### ① 開発者: ソースを直して push
+
+`plugins/awake.30s.sh` などを編集して push すると、`main` と raw URL が新しくなり、**以降に入れる人は自動で新版**になります。
+
+```sh
+cd awake
+# 例: plugins/awake.30s.sh を編集したあと
+git add -A
+git commit -m "プラグインを更新"
+git push
+```
+
+> 更新時は `plugins/awake.30s.sh` 冒頭の `<xbar.version>` を上げておくと、どの版か分かりやすいです。
+
+### ② 利用者: 新版を取り込む
+
+SwiftBar のプラグインは一度コピーしたら自動更新されません。**もう一度インストールの 1 行を実行するだけ**で最新になります。
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/tepshq/awake/main/install.sh | bash
+```
+
+（clone 派は `git pull && ./install.sh`、`swiftbar://addplugin` 派は同じリンクを再クリックでも OK）
+
+---
+
 ## アンインストール
 
 ```sh
