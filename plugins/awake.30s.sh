@@ -3,7 +3,7 @@
 # AWAKE — AWAKE モード（蓋を閉じてもスリープしない）をメニューバーからトグル
 #
 # <xbar.title>AWAKE</xbar.title>
-# <xbar.version>v1.1.1</xbar.version>
+# <xbar.version>v1.1.2</xbar.version>
 # <xbar.author>テープス株式会社</xbar.author>
 # <xbar.abouturl>https://github.com/tepshq/awake</xbar.abouturl>
 # <xbar.desc>AWAKE モード（蓋を閉じても外部ディスプレイ無しでもMacをスリープさせない）をメニューバーからON/OFF。長時間ONになると「必ずオフ」ダイアログを出します（時間はメニューで設定可）。</xbar.desc>
@@ -130,6 +130,9 @@ else
   echo "👀 通常モードにする | bash=\"$SELF\" param1=off terminal=false refresh=true size=14 color=$BLUE"
   emit_settings
 fi
+
+echo "---"
+echo "ⓘ AWAKE について / リポジトリ | href=https://github.com/tepshq/awake color=#8E8E93 size=12"
 
 # ---- 設定時間を超えたら「必ずオフ」モーダルを出す（オフするまで復活）----
 if [ "$STATE" = "on" ] && [ "$MODAL_AFTER" -gt 0 ] && [ "$ELAPSED" -ge "$MODAL_AFTER" ]; then
