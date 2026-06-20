@@ -1,17 +1,17 @@
 #!/bin/bash
 #
-# AWAKE — 蓋を閉じてもスリープしないモードをメニューバーからトグル
+# AWAKE — AWAKEモード（蓋を閉じてもスリープしない）をメニューバーからトグル
 #
 # <xbar.title>AWAKE</xbar.title>
 # <xbar.version>v1.1.0</xbar.version>
 # <xbar.author>テープス株式会社</xbar.author>
-# <xbar.desc>蓋を閉じても(外部ディスプレイ無しでも)Macをスリープさせない状態をメニューバーからON/OFF。ONが長時間続くと🚨で切り忘れを警告します。</xbar.desc>
+# <xbar.desc>AWAKEモード（蓋を閉じても外部ディスプレイ無しでもMacをスリープさせない）をメニューバーからON/OFF。ONが長時間続くと🚨で切り忘れを警告します。</xbar.desc>
 # <xbar.dependencies>macOS,pmset</xbar.dependencies>
 # <swiftbar.refreshOnOpen>true</swiftbar.refreshOnOpen>
 # <swiftbar.hideRunInTerminal>true</swiftbar.hideRunInTerminal>
 # <swiftbar.hideLastUpdated>true</swiftbar.hideLastUpdated>
 #
-# アイコン: 👀 普通(OFF) / 👁️ 寝ないモード(ON) / 🚨 ONが長時間続いたときの警告
+# アイコン: 👀 通常モード(OFF) / 👁️ AWAKEモード(ON) / 🚨 AWAKEモードが長時間続いたときの警告
 #
 # 仕組み:
 #   ON  = /usr/bin/pmset -a disablesleep 1   (root)
@@ -19,7 +19,7 @@
 #   root取得は osascript の管理者ダイアログ(毎回パスワード)。状態読みはパスワード不要。
 
 # ===== 設定 =====================================================
-# ON のまま この秒数を超えたら、メニューバーを 🚨 にして切り忘れを警告する。
+# AWAKEモードのまま この秒数を超えたら、メニューバーを 🚨 にして切り忘れを警告する。
 #   3600 = 1時間 / 1800 = 30分 / 7200 = 2時間 / 0 = 警告しない
 SIREN_AFTER=3600
 # ================================================================
@@ -29,7 +29,7 @@ PMSET="/usr/bin/pmset"
 AWK="/usr/bin/awk"
 OSASCRIPT="/usr/bin/osascript"
 
-# ON継続時間を覚えておく場所
+# AWAKEモード継続時間を覚えておく場所
 STATE_DIR="$HOME/Library/Application Support/AWAKE"
 ON_SINCE_FILE="$STATE_DIR/on_since"
 
@@ -40,7 +40,7 @@ get_state() {
   [ "$v" = "1" ] && echo "on" || echo "off"
 }
 
-# disablesleep を切り替える(root)。$1 = 1/0。キャンセル時は非0で何もしない。
+# disablesleep を切り替える(root)。$1 = 1/0。キャンセル時は何もしない。
 set_disablesleep() {
   "$OSASCRIPT" -e "do shell script \"$PMSET -a disablesleep $1\" with administrator privileges" >/dev/null 2>&1
 }
@@ -57,7 +57,7 @@ SELF="$0"
 STATE="$(get_state)"
 NOW="$(date +%s)"
 
-# ON継続時間の管理 & サイレン判定
+# AWAKEモード継続時間の管理 & サイレン判定
 SIREN=0
 ELAPSED=0
 if [ "$STATE" = "on" ]; then
@@ -86,19 +86,19 @@ human() {
 if [ "$STATE" = "off" ]; then
   echo "👀 | size=15"
   echo "---"
-  echo "👀 通常スリープ（OFF） | color=#8E8E93"
+  echo "👀 通常モード（OFF） | color=#8E8E93"
   echo "---"
-  echo "👁️ 寝ないモードにする | bash=\"$SELF\" param1=on terminal=false refresh=true"
+  echo "👁️ AWAKEモードにする | bash=\"$SELF\" param1=on terminal=false refresh=true"
 elif [ "$SIREN" = "1" ]; then
   echo "🚨 | size=15"
   echo "---"
-  echo "🚨 ON のまま $(human "$ELAPSED") 経過 — 切り忘れ注意 | color=#FF3B30"
+  echo "🚨 AWAKEモードのまま $(human "$ELAPSED") 経過 — 切り忘れ注意 | color=#FF3B30"
   echo "---"
-  echo "👀 OFFにする | bash=\"$SELF\" param1=off terminal=false refresh=true"
+  echo "👀 通常モードにする | bash=\"$SELF\" param1=off terminal=false refresh=true"
 else
   echo "👁️ | size=15"
   echo "---"
-  echo "👁️ 蓋を閉じても寝ない（ON） | color=#34C759"
+  echo "👁️ AWAKEモード（ON） | color=#34C759"
   echo "---"
-  echo "👀 OFFにする | bash=\"$SELF\" param1=off terminal=false refresh=true"
+  echo "👀 通常モードにする | bash=\"$SELF\" param1=off terminal=false refresh=true"
 fi
