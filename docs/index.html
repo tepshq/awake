@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWAKE — AIを回す間、Macを寝かせない</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👁️</text></svg>">
+<meta name="description" content="AI を回している間、Mac の蓋を閉じても寝かせない。Claude Code を長時間ぶん回すための SwiftBar プラグイン。">
+<meta property="og:title" content="AWAKE — AIを回す間、Macを寝かせない">
+<meta property="og:description" content="Claude Code を長時間ぶん回すとき、蓋を閉じても処理を止めない SwiftBar プラグイン。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tepshq.github.io/awake/">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#06080c; --green:#30D158; --red:#FF453A; --blue:#0A84FF;
+    --text:#f4f6fa; --muted:#8a93a3; --card:rgba(255,255,255,.045);
+    --border:rgba(255,255,255,.10); --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  }
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(1200px 700px at 50% -10%, rgba(48,209,88,.14), transparent 60%),
+      radial-gradient(900px 600px at 90% 10%, rgba(10,132,255,.10), transparent 55%),
+      var(--bg);
+    color:var(--text); font-family:var(--sans); line-height:1.65;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 22px}
+  a{color:inherit;text-decoration:none}
+  section{padding:clamp(72px,11vw,132px) 0}
+  h2.h{margin-top:.2em}
+
+  .hero{text-align:center;padding-top:clamp(56px,10vw,120px);position:relative}
+  .eye{font-size:clamp(96px,22vw,210px);line-height:1;display:inline-block;filter:drop-shadow(0 0 36px rgba(48,209,88,.55));animation:blink 5.5s infinite both}
+  @keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+  .brand{font-size:clamp(46px,12vw,108px);font-weight:800;letter-spacing:.06em;margin:.18em 0 0;background:linear-gradient(180deg,#fff,#aef5c4 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tag{font-size:clamp(20px,4.4vw,34px);font-weight:700;margin:.5em auto 0;max-width:16ch;line-height:1.25}
+  .tag .hl{color:var(--green)}
+  .sub{color:var(--muted);font-size:clamp(15px,2.4vw,18px);max-width:46ch;margin:1.1em auto 0}
+  .pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:1.6em 0 0}
+  .pill{font-size:12.5px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:5px 12px}
+  .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:2em 0 0}
+  .btn{font-size:15px;font-weight:600;padding:13px 22px;border-radius:12px;border:1px solid transparent;cursor:pointer;transition:.18s;display:inline-flex;align-items:center;gap:8px}
+  .btn.primary{background:var(--green);color:#04210f}
+  .btn.primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn.ghost{border-color:var(--border);color:var(--text)}
+  .btn.ghost:hover{background:rgba(255,255,255,.06);transform:translateY(-1px)}
+
+  h2.h{font-size:clamp(26px,5vw,40px);font-weight:800;text-align:center;letter-spacing:-.01em}
+  .lead{color:var(--muted);text-align:center;max-width:48ch;margin:.8em auto 0;font-size:clamp(15px,2.4vw,17px)}
+
+  .states{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:2.6em}
+  .scard{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:26px;text-align:center}
+  .scard .ico{font-size:54px;line-height:1}
+  .scard h3{font-size:19px;margin:.5em 0 .2em;font-weight:700}
+  .scard.awake{border-color:rgba(48,209,88,.4);box-shadow:0 0 0 1px rgba(48,209,88,.12),0 18px 50px -20px rgba(48,209,88,.4)}
+  .scard p{color:var(--muted);font-size:14.5px}
+  .scard .tagi{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:3px 11px;margin-top:12px}
+  .ta-on{background:rgba(48,209,88,.16);color:var(--green)}
+  .ta-off{background:rgba(255,255,255,.07);color:var(--muted)}
+
+  .feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:2.6em}
+  .fcard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px}
+  .fcard .fi{font-size:30px}
+  .fcard h3{font-size:17px;margin:.6em 0 .3em;font-weight:700}
+  .fcard p{color:var(--muted);font-size:14px}
+
+  .demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;align-items:center;margin-top:2.6em}
+  .menubar{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+  .menubar .bar{display:flex;justify-content:flex-end;gap:14px;align-items:center;padding:7px 14px;background:rgba(255,255,255,.06);font-size:13px;color:var(--muted);border-bottom:1px solid var(--border)}
+  .menubar .bar .eyeb{font-size:15px;filter:drop-shadow(0 0 8px rgba(48,209,88,.6))}
+  .panel{padding:8px}
+  .row{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:9px;font-size:14px}
+  .row.head{font-weight:700}
+  .row.green{color:var(--green)}
+  .row.blue{color:var(--blue)}
+  .row.muted{color:var(--muted);font-size:12.5px}
+  .sep{height:1px;background:var(--border);margin:6px 10px}
+  .demo .cap h3{font-size:20px;font-weight:700;margin-bottom:.4em}
+  .demo .cap p{color:var(--muted);font-size:14.5px;margin-bottom:.8em}
+  .demo .cap li{color:var(--muted);font-size:14px;margin:.3em 0;list-style:none;padding-left:22px;position:relative}
+  .demo .cap li::before{content:"›";position:absolute;left:6px;color:var(--green);font-weight:700}
+
+  .modalwrap{margin-top:2.6em;background:repeating-linear-gradient(45deg,rgba(255,69,58,.05),rgba(255,69,58,.05) 12px,transparent 12px,transparent 24px);border:1px solid rgba(255,69,58,.25);border-radius:18px;padding:clamp(28px,6vw,52px);display:flex;justify-content:center}
+  .dialog{background:#15171c;border:1px solid var(--border);border-radius:16px;max-width:380px;width:100%;padding:26px;text-align:center;box-shadow:0 30px 80px -20px rgba(0,0,0,.7)}
+  .dialog .warn{font-size:40px}
+  .dialog h4{font-size:16px;font-weight:700;margin:.6em 0 .3em}
+  .dialog p{color:var(--muted);font-size:14px;margin-bottom:1.2em}
+  .dialog .ok{background:var(--red);color:#fff;border:none;border-radius:10px;padding:11px 0;width:100%;font-size:14px;font-weight:600;cursor:pointer}
+  .dialog .note{color:var(--muted);font-size:12px;margin-top:12px}
+
+  .install{text-align:center}
+  .codebox{display:flex;align-items:center;gap:12px;justify-content:space-between;background:#0c0f15;border:1px solid var(--border);border-radius:14px;padding:14px 16px;max-width:660px;margin:1.8em auto 0;text-align:left}
+  .codebox code{font-family:var(--mono);font-size:clamp(12px,2.6vw,14.5px);color:#cfe9d6;overflow-x:auto;white-space:nowrap}
+  .copy{flex:0 0 auto;background:var(--green);color:#04210f;border:none;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}
+  .copy.done{background:#2b3140;color:var(--green)}
+  .steps{color:var(--muted);font-size:13.5px;margin-top:1.1em}
+
+  footer{border-top:1px solid var(--border);padding:40px 0 60px;text-align:center;color:var(--muted);font-size:13.5px}
+  footer a{color:var(--green)}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+
+<header class="hero wrap">
+  <div class="eye" aria-hidden="true">👁️</div>
+  <h1 class="brand">AWAKE</h1>
+  <p class="tag">AI を回している間、Mac の蓋を閉じても <span class="hl">寝かせない。</span></p>
+  <p class="sub">Claude Code を長時間ぶん回すとき、蓋を閉じても処理を止めない。メニューバーから 👀 ⇄ 👁️ を切り替えるだけ。</p>
+  <div class="pills">
+    <span class="pill">macOS</span><span class="pill">SwiftBar</span>
+    <span class="pill">オープンソース</span><span class="pill">無料</span>
+  </div>
+  <div class="cta">
+    <button class="btn primary" onclick="document.getElementById('install').scrollIntoView()">⌘ インストール</button>
+    <a class="btn ghost" href="https://github.com/tepshq/awake">GitHub で見る →</a>
+  </div>
+</header>
+
+<section class="wrap">
+  <h2 class="h">2つの状態だけ</h2>
+  <p class="lead">メニューバーのアイコンで、今どっちかが一目で分かる。</p>
+  <div class="states">
+    <div class="scard">
+      <div class="ico" aria-hidden="true">👀</div>
+      <h3>通常モード</h3>
+      <p>いつもどおり。蓋を閉じればスリープします。</p>
+      <span class="tagi ta-off">OFF</span>
+    </div>
+    <div class="scard awake">
+      <div class="ico" aria-hidden="true">👁️</div>
+      <h3>AWAKE モード</h3>
+      <p>蓋を閉じても・外部ディスプレイ無しでも寝ない。</p>
+      <span class="tagi ta-on">ON</span>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2 class="h">メニューバーから1クリック</h2>
+  <div class="demo">
+    <div class="menubar" aria-hidden="true">
+      <div class="bar"><span>🔋 100%</span><span>金 14:30</span><span class="eyeb">👁️</span></div>
+      <div class="panel">
+        <div class="row head green">👁️ AWAKE モード</div>
+        <div class="row blue">👀 通常モードにする</div>
+        <div class="sep"></div>
+        <div class="row muted">オフ強制まで：6時間 ▸</div>
+        <div class="sep"></div>
+        <div class="row muted">ⓘ AWAKE について / リポジトリ</div>
+      </div>
+    </div>
+    <div class="cap">
+      <h3>迷わない、シンプルなパネル</h3>
+      <p>状態と切り替えだけ。ごちゃごちゃしない。</p>
+      <ul>
+        <li>クリックで ON / OFF（切替時だけパスワード）</li>
+        <li>オフ強制までの時間を 1 / 3 / 6 / 12h で設定</li>
+        <li>リポジトリへもワンクリック</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2 class="h">付けっぱなしを、ちゃんと止める</h2>
+  <p class="lead">設定時間を超えると、オフにするまで消えないダイアログが出ます。AIを回しっぱなしの「鞄の中で発熱」を防止。</p>
+  <div class="modalwrap">
+    <div class="dialog" role="img" aria-label="オフを促す警告ダイアログ">
+      <div class="warn" aria-hidden="true">⚠️</div>
+      <h4>AWAKE</h4>
+      <p>AWAKE モードが6時間以上続いています。安全のため、一度オフにしてください。</p>
+      <button class="ok">オフにする</button>
+      <div class="note">キャンセルしても、オフにするまで出続けます</div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2 class="h">なぜ AWAKE か</h2>
+  <div class="feat">
+    <div class="fcard"><div class="fi" aria-hidden="true">🟢</div><h3>見える化</h3><p>メニューバーに 👀 / 👁️ で常時表示。切り忘れに気づける。</p></div>
+    <div class="fcard"><div class="fi" aria-hidden="true">🔒</div><h3>安全設計</h3><p>sudoers 改変も常駐ヘルパーも無し。切替時だけ標準のパスワード。</p></div>
+    <div class="fcard"><div class="fi" aria-hidden="true">⏰</div><h3>必ずオフ</h3><p>長時間で「オフにするまで消えない」ダイアログ。付けっぱ事故を防止。</p></div>
+    <div class="fcard"><div class="fi" aria-hidden="true">🚀</div><h3>導入がラク</h3><p>ターミナルに1行。SwiftBar 導入から配置まで自動。</p></div>
+  </div>
+</section>
+
+<section class="wrap install" id="install">
+  <h2 class="h">インストール</h2>
+  <p class="lead">ターミナルにコピペして実行するだけ。</p>
+  <div class="codebox">
+    <code id="cmd">curl -fsSL https://raw.githubusercontent.com/tepshq/awake/main/install.sh | bash</code>
+    <button class="copy" id="copy" aria-label="コマンドをコピー">コピー</button>
+  </div>
+  <p class="steps">SwiftBar 未導入でも自動で入ります（Homebrew が必要）。</p>
+  <div class="cta">
+    <a class="btn ghost" href="https://github.com/tepshq/awake">リポジトリを見る →</a>
+  </div>
+</section>
+
+<footer>
+  <p>👁️ AWAKE · Made by テープス株式会社</p>
+  <p style="margin-top:6px"><a href="https://github.com/tepshq/awake">github.com/tepshq/awake</a></p>
+</footer>
+
+<script>
+  const btn=document.getElementById('copy');
+  btn.addEventListener('click',async()=>{
+    const t=document.getElementById('cmd').innerText;
+    try{await navigator.clipboard.writeText(t);}catch(e){}
+    btn.textContent='コピーしました ✓';btn.classList.add('done');
+    setTimeout(()=>{btn.textContent='コピー';btn.classList.remove('done');},1800);
+  });
+</script>
+</body>
+</html>
