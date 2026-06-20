@@ -29,7 +29,7 @@ ON_SINCE_FILE="$STATE_DIR/on_since"        # AWAKE モードになった時刻
 MODAL_LOCK_FILE="$STATE_DIR/modal.lock"    # 「必ずオフ」モーダル稼働中の目印
 MODAL_AFTER_FILE="$STATE_DIR/modal_after"  # オフ強制までの秒数(メニューで設定)
 
-MODAL_AFTER_DEFAULT=28800   # 既定 8時間
+MODAL_AFTER_DEFAULT=21600   # 既定 6時間
 
 # 色
 GREEN="#34C759"
@@ -109,8 +109,9 @@ emit_settings() {
   mark() { [ "$MODAL_AFTER" = "$1" ] && printf "✓ " || printf "   "; }
   echo "---"
   echo "オフ強制まで：$(( MODAL_AFTER / 3600 ))時間 | color=$GRAY size=12"
-  echo "--$(mark 14400)4時間 | bash=\"$SELF\" param1=set-modal param2=14400 terminal=false refresh=true"
-  echo "--$(mark 28800)8時間 | bash=\"$SELF\" param1=set-modal param2=28800 terminal=false refresh=true"
+  echo "--$(mark 3600)1時間 | bash=\"$SELF\" param1=set-modal param2=3600 terminal=false refresh=true"
+  echo "--$(mark 10800)3時間 | bash=\"$SELF\" param1=set-modal param2=10800 terminal=false refresh=true"
+  echo "--$(mark 21600)6時間 | bash=\"$SELF\" param1=set-modal param2=21600 terminal=false refresh=true"
   echo "--$(mark 43200)12時間 | bash=\"$SELF\" param1=set-modal param2=43200 terminal=false refresh=true"
 }
 
