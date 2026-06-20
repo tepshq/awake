@@ -74,5 +74,5 @@ sleep 1
 open "swiftbar://refreshallplugins" 2>/dev/null || true
 
 echo ""
-echo "✅ 完了です。メニューバーに 🌙 (OFF) または 🚨/☀️ (ON) が表示されます。"
+echo "✅ 完了です。メニューバーに 👀 (通常モード) / 👁️ (AWAKE モード) が表示されます。"
 echo "   表示されない場合は SwiftBar を一度終了→再起動してください。"
