@@ -4,7 +4,7 @@
 #
 # <xbar.title>AWAKE</xbar.title>
 # <xbar.version>v1.1.0</xbar.version>
-# <xbar.author>TePs</xbar.author>
+# <xbar.author>テープス株式会社</xbar.author>
 # <xbar.desc>蓋を閉じても(外部ディスプレイ無しでも)Macをスリープさせない状態をメニューバーからON/OFF。ONが長時間続くと🚨で切り忘れを警告します。</xbar.desc>
 # <xbar.dependencies>macOS,pmset</xbar.dependencies>
 # <swiftbar.refreshOnOpen>true</swiftbar.refreshOnOpen>
