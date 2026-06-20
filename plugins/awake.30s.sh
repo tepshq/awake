@@ -3,8 +3,9 @@
 # AWAKE — AWAKE モード（蓋を閉じてもスリープしない）をメニューバーからトグル
 #
 # <xbar.title>AWAKE</xbar.title>
-# <xbar.version>v1.1.0</xbar.version>
+# <xbar.version>v1.1.1</xbar.version>
 # <xbar.author>テープス株式会社</xbar.author>
+# <xbar.abouturl>https://github.com/tepshq/awake</xbar.abouturl>
 # <xbar.desc>AWAKE モード（蓋を閉じても外部ディスプレイ無しでもMacをスリープさせない）をメニューバーからON/OFF。長時間ONになると「必ずオフ」ダイアログを出します（時間はメニューで設定可）。</xbar.desc>
 # <xbar.dependencies>macOS,pmset</xbar.dependencies>
 # <swiftbar.refreshOnOpen>true</swiftbar.refreshOnOpen>
