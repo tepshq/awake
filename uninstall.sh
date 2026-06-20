@@ -28,6 +28,9 @@ else
   echo "  プラグインが見つかりませんでした（既に削除済み？）"
 fi
 
+echo "▶ 状態ファイルを削除..."
+rm -rf "$HOME/Library/Application Support/AWAKE"
+
 open "swiftbar://refreshallplugins" 2>/dev/null || true
 
 echo ""
